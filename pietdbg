@@ -1,0 +1,59 @@
+#!/usr/bin/env python2
+
+from os import path
+from argparse import ArgumentParser,\
+                     ArgumentDefaultsHelpFormatter,\
+                     REMAINDER
+
+from libpietdbg.ui import debugger
+from libpietdbg.base import unknown_black, unknown_white, unknown_error
+
+
+f_parser = ArgumentParser(prog='pietdbg -o')
+f_parser.add_argument('file',
+                      metavar='<path>')
+f_parser.add_argument('-cs',
+                      default=None,
+                      help='set codel size (default: guess)',
+                      type=int,
+                      metavar='<codelsize>')
+f_parser.add_argument('-uc',
+                      default='white',
+                      help='set unknown color handling (default: white)',
+                      choices=['black', 'white', 'error'])
+
+parser = ArgumentParser()
+p = path.expanduser('~/.pietdbg')
+parser.add_argument('-c',
+                    default=p,
+                    help=''.join(('set configuration file (default: ', p, ')')),
+                    metavar='<path>')
+parser.add_argument('-o',
+                    default=None,
+                    help='open a file',
+                    nargs=REMAINDER)
+
+args = parser.parse_args()
+
+cp = args.c
+
+if args.o is not None:
+    args = f_parser.parse_args(args.o)
+    uc_d = {
+        'black': unknown_black,
+        'white': unknown_white,
+        'error': unknown_error
+    }
+    fname = args.file
+    cs = args.cs
+    uc = uc_d[args.uc]
+else:
+    fname = None
+
+parser = None
+f_parser = None
+
+dbg = debugger(cp)
+if fname is not None:
+    dbg.do_open(fname, cs, uc)
+dbg.main()

@@ -1,0 +1,6 @@
+*.bak
+*.pyc
+/env
+/spec
+/examples
+/npiet
